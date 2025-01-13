@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <name>NTC</name>
+        <id>id.raniaamina.ntc</id>
+        <spacer/>
+        <_param name="welcome" type="description" appearance="header">NTC: Name This Colors </_param>
+        <_param name="descriptions" type="description" xml:space="preserve">Generete color code in simple way.</_param>
+        <spacer/>
+        <param name="hex_checkbox" type="bool" gui-text="HEX">true</param>
+        <param name="rgb_checkbox" type="bool" gui-text="RGB">true</param>
+        <param name="cmyk_checkbox" type="bool" gui-text="CMYK">false</param>
+        <param name="hsl_checkbox" type="bool" gui-text="HSL">false</param>
+        <param name="hsv_checkbox" type="bool" gui-text="HSV">false</param>
+        <effect needs-live-preview="false">
+        <object-type>all</object-type>
+                <effects-menu>
+                        <submenu _name="Generate"/>
+                </effects-menu>
+        </effect>
+        <script>
+                <command reldir="extensions" interpreter="python">ntc.py</command>
+        </script>
+</inkscape-extension>
