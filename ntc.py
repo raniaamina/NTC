@@ -10,6 +10,7 @@ class NTCColorExtension(inkex.EffectExtension):
         pars.add_argument("--cmyk_checkbox", type=inkex.Boolean, default=False, help="Tampilkan CMYK")
         pars.add_argument("--hsl_checkbox", type=inkex.Boolean, default=False, help="Tampilkan HSL")
         pars.add_argument("--hsv_checkbox", type=inkex.Boolean, default=False, help="Tampilkan HSV")
+        pars.add_argument("--round_value", type=inkex.Boolean, default=True, help="Round Value for CMYK, HSL and HSV")
 
     def effect(self):
         hex_enabled = self.options.hex_checkbox
@@ -17,6 +18,7 @@ class NTCColorExtension(inkex.EffectExtension):
         cmyk_enabled = self.options.cmyk_checkbox
         hsl_enabled = self.options.hsl_checkbox
         hsv_enabled = self.options.hsv_checkbox
+        round_values = self.options.round_value
 
         if not self.svg.selected:
             inkex.errormsg("Tidak ada objek yang dipilih. Silakan pilih objek terlebih dahulu.")
@@ -26,7 +28,7 @@ class NTCColorExtension(inkex.EffectExtension):
             try:
                 fill_color = element.style.get('fill')
                 if not fill_color or fill_color in ['none', 'transparent']:
-                    fill_color = '#000000'  # Fallback to black
+                    fill_color = '#000000'
                 hex_code = fill_color.upper()
 
                 r = int(hex_code[1:3], 16)
@@ -42,28 +44,37 @@ class NTCColorExtension(inkex.EffectExtension):
                     c = (c - k) / (1 - k)
                     m = (m - k) / (1 - k)
                     y = (y - k) / (1 - k)
-                cmyk_code = f"C: {c*100:.2f}% M: {m*100:.2f}% Y: {y*100:.2f}% K: {k*100:.2f}%"
+
+                if round_values:
+                    c, m, y, k = round(c * 100), round(m * 100), round(y * 100), round(k * 100)
+                cmyk_code = f"C: {c:.2f}% M: {m:.2f}% Y: {y:.2f}% K: {k:.2f}%" if not round_values else f"C: {c:.0f}% M: {m:.0f}% Y: {y:.0f}% K: {k:.0f}%"
 
                 r_norm = r / 255.0
                 g_norm = g / 255.0
                 b_norm = b / 255.0
-                h, s, l = colorsys.rgb_to_hls(r_norm, g_norm, b_norm)
-                hsl_code = f"H: {h*360:.2f}° S: {s*100:.2f}% L: {l*100:.2f}%"
+                h, l, s = colorsys.rgb_to_hls(r_norm, g_norm, b_norm)
 
-                hsv_code = colorsys.rgb_to_hsv(r_norm, g_norm, b_norm)
-                hsv_code = f"H: {hsv_code[0]*360:.2f}° S: {hsv_code[1]*100:.2f}% V: {hsv_code[2]*100:.2f}%"
+                if round_values:
+                    h, s, l = round(h * 360), round(s * 100), round(l * 100)
+                hsl_code = f"H: {h*360:.2f}° S: {s*100:.2f}% L: {l*100:.2f}%" if not round_values else f"H: {h:.0f}° S: {s:.0f}% L: {l:.0f}%"
+
+                hsv = colorsys.rgb_to_hsv(r_norm, g_norm, b_norm)
+
+                if round_values:
+                    hsv = (round(hsv[0] * 360), round(hsv[1] * 100), round(hsv[2] * 100))
+                hsv_code = f"H: {hsv[0]*360:.2f}° S: {hsv[1]*100:.2f}% V: {hsv[2]*100:.2f}%" if not round_values else f"H: {hsv[0]:.0f}° S: {hsv[1]:.0f}% V: {hsv[2]:.0f}%"
 
                 bbox = element.bounding_box()
 
-                x_position = bbox.right + 10  
-                y_position = bbox.top + 5  
+                x_position = bbox.right + 10
+                y_position = bbox.top + 5
 
                 group = inkex.Group()
 
                 if hex_enabled:
                     text_hex = TextElement()
                     text_hex.text = f"{hex_code}"
-                    text_hex.style = {'font-size': '4.75px;', 'fill': '#000000'}
+                    text_hex.style = {'font-size': '4.75px;', 'fill': '#073984', 'font-family': 'Verdana', 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal', 'font-variant': 'normal'}
                     text_hex.set('x', str(x_position))
                     text_hex.set('y', str(y_position))
                     group.append(text_hex)
@@ -71,33 +82,33 @@ class NTCColorExtension(inkex.EffectExtension):
                 if rgb_enabled:
                     text_rgb = TextElement()
                     text_rgb.text = f"{rgb_code}"
-                    text_rgb.style = {'font-size': '4.75px;', 'fill': '#000000'}
+                    text_rgb.style = {'font-size': '4.75px;', 'fill': '#073984', 'font-family': 'Verdana', 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal', 'font-variant': 'normal'}
                     text_rgb.set('x', str(x_position))
-                    text_rgb.set('y', str(y_position + 10))  # text gap
+                    text_rgb.set('y', str(y_position + 8))
                     group.append(text_rgb)
 
                 if cmyk_enabled:
                     text_cmyk = TextElement()
                     text_cmyk.text = f"{cmyk_code}"
-                    text_cmyk.style = {'font-size': '4.75px;', 'fill': '#000000'}
+                    text_cmyk.style = {'font-size': '4.75px;', 'fill': '#073984', 'font-family': 'Verdana', 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal', 'font-variant': 'normal'}
                     text_cmyk.set('x', str(x_position))
-                    text_cmyk.set('y', str(y_position + 20)) 
+                    text_cmyk.set('y', str(y_position + 16))
                     group.append(text_cmyk)
 
                 if hsl_enabled:
                     text_hsl = TextElement()
                     text_hsl.text = f"{hsl_code}"
-                    text_hsl.style = {'font-size': '4.75px;', 'fill': '#000000'}
+                    text_hsl.style = {'font-size': '4.75px;', 'fill': '#073984', 'font-family': 'Verdana', 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal', 'font-variant': 'normal'}
                     text_hsl.set('x', str(x_position))
-                    text_hsl.set('y', str(y_position + 30))
+                    text_hsl.set('y', str(y_position + 24))
                     group.append(text_hsl)
 
                 if hsv_enabled:
                     text_hsv = TextElement()
                     text_hsv.text = f"{hsv_code}"
-                    text_hsv.style = {'font-size': '4.75px;', 'fill': '#000000'}
+                    text_hsv.style = {'font-size': '4.75px;', 'fill': '#073984', 'font-family': 'Verdana', 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal', 'font-variant': 'normal'}
                     text_hsv.set('x', str(x_position))
-                    text_hsv.set('y', str(y_position + 40)) 
+                    text_hsv.set('y', str(y_position + 32))
                     group.append(text_hsv)
 
                 self.svg.append(group)

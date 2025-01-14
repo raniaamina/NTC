@@ -11,6 +11,8 @@
         <param name="cmyk_checkbox" type="bool" gui-text="CMYK">false</param>
         <param name="hsl_checkbox" type="bool" gui-text="HSL">false</param>
         <param name="hsv_checkbox" type="bool" gui-text="HSV">false</param>
+        <separator />
+        <param name="round_value" type="bool" gui-text="Use Round Value for CMYK, HSL and HSV instead of Decimals">true</param>
         <effect needs-live-preview="false">
         <object-type>all</object-type>
                 <effects-menu>
